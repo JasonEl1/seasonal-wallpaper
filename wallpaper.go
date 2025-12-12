@@ -1,4 +1,4 @@
-// v0.0.1
+// v0.0.2
 
 package main
 
@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -163,6 +164,12 @@ func main() {
 				}
 			}
 		}
+		ascript := `tell application "System Events" to tell current desktop to set change interval of current desktop to (change interval of current desktop)`
 
+		cmd := exec.Command("osascript", "-e", ascript)
+		if err := cmd.Run(); err != nil {
+			fmt.Println("Failed to run Applescript command: %w", err)
+			os.Exit(1)
+		}
 	}
 }

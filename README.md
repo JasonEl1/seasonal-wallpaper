@@ -4,6 +4,9 @@ Automatically change your wallpaper folder to match the season and time of day!
 
 ### Instructions:
 
+> [!IMPORTANT]
+> Only tested on MacOS. Parts of the application will currently not function correctly outside of MacOS. The tool is still usable on other platforms however there will be some delay between running the tool and the wallpaper correctly updating.
+
 Create a master folder to store all wallpaper images and folders. This can have any name.
 
 Within the master folder, create the following sub-folders or run the below shell script inside the master folder:
