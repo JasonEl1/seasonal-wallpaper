@@ -6,18 +6,19 @@ Automatically change your wallpaper folder to match the season and time of day!
 
 Create a master folder to store all wallpaper images and folders. This can have any name.
 
-Within the master folder, create the following 8 sub-folders or use the below shell script inside the master folder to do so:
+Within the master folder, create the following sub-folders or run the below shell script inside the master folder:
 
-/Spring-Day
-/Spring-Night
-/Summer-Day
-/Summer-Night
-/Autumn-Day
-/Autumn-Night
-/Winter-Day
-/Winter-Night
+/Spring-Day  
+/Spring-Night  
+/Summer-Day  
+/Summer-Night  
+/Autumn-Day  
+/Autumn-Night  
+/Winter-Day  
+/Winter-Night  
 
-Important: Each sub-folder should contain a file called name.txt which contains the name of the folder.
+Important: Each sub-folder should contain a file called name.txt which contains the name of the folder. This is because the current wallpaper folder will be renamed to `Active` by the tool. 
+
 
 ```
 folders=("Spring-Day" "Spring-Night" "Summer-Day" "Summer-Night" "Autumn-Day" "Autumn-Night" "Winter-Day" "Winter-Night")
@@ -30,11 +31,9 @@ for folder in "${folders[@]}"; do
 done
 ```
 
-This is because the current wallpaper folder will be renamed to `Active` by the tool. 
-
 Once these folders and files have been created, rename one of the folders to `Active` and set it as your wallpaper folder in your system's settings.
 
-Go back to the initial folder from github and run the `./install.sh` script. This will install the compiled binary to /usr/local/bin and add a cron job that run the program once an hour and update your wallpaper folder if needed.
+Go back to the initial folder from github and run the `./install.sh` script. This will install the compiled binary to `/usr/local/bin` and add a cron job that run the program once an hour and update your wallpaper folder if needed.
 
 You can also enter `wallpaper` in the terminal to update the wallpaper folder manually.
 
