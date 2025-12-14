@@ -164,12 +164,15 @@ func main() {
 				}
 			}
 		}
-		ascript := `tell application "System Events" to tell current desktop to set change interval of current desktop to (change interval of current desktop)`
-
-		cmd := exec.Command("osascript", "-e", ascript)
-		if err := cmd.Run(); err != nil {
-			fmt.Println("Failed to run Applescript command: %w", err)
-			os.Exit(1)
-		}
 	}
+
+	cmd := exec.Command("killall", "WallpaperAgent")
+
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("Failed to refresh wallpaper")
+		os.Exit(1)
+	}
+
 }
