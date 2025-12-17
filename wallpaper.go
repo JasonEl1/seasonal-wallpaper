@@ -1,4 +1,4 @@
-// v0.0.2
+// v0.0.3
 
 package main
 
@@ -146,6 +146,8 @@ func main() {
 	temp_path := strings.Split(wallpaper_path, "/")
 	wallpapers_folder := strings.Join(temp_path[:len(temp_path)-2], "/")
 
+	var changed bool = false
+
 	if current_season != get_season(int(current_time.Month()), current_time.Day()) || current_tod != tod { //if active wallpaper does not match current season or tod
 		entries, err := os.ReadDir(wallpapers_folder)
 		if err != nil {
@@ -160,19 +162,22 @@ func main() {
 				if attributes[0] == get_season(int(current_time.Month()), current_time.Day()) && attributes[1] == tod {
 					_ = os.Rename(wallpapers_folder+"/Active", wallpapers_folder+"/"+current_season+"-"+current_tod)
 					_ = os.Rename(wallpapers_folder+"/"+entry.Name(), wallpapers_folder+"/Active")
+					changed = true
 					break
 				}
 			}
 		}
 	}
 
-	cmd := exec.Command("killall", "WallpaperAgent")
+	if changed {
+		cmd := exec.Command("killall", "WallpaperAgent")
 
-	err = cmd.Run()
-	if err != nil {
-		fmt.Println(err)
-		fmt.Println("Failed to refresh wallpaper")
-		os.Exit(1)
+		err = cmd.Run()
+		if err != nil {
+			fmt.Println(err)
+			fmt.Println("Failed to refresh wallpaper")
+			os.Exit(1)
+		}
 	}
 
 }
