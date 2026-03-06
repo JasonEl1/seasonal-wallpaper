@@ -40,7 +40,7 @@ Go back to the initial folder from github and run the `./install.sh` script. Thi
 You can also enter `wallpaper` in the terminal to update the wallpaper folder manually.
 
 > [!TIP]
-> The date intervals for the seasons are stored at `~/.config/wallpaper/seasons.json` after running `install.sh`. These dates can be edited to adjust the season transitions for the program.
+> The date intervals for the seasons are stored in `seasons.json` in your wallpaper directory after running `install.sh`. These dates can be edited to adjust the season transitions for the program.
 
 ### Uninstallation
 

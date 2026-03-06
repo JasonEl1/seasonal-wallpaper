@@ -1,4 +1,4 @@
-// v0.1.0
+// v0.1.1
 
 package main
 
@@ -18,17 +18,19 @@ import (
 	"github.com/reujab/wallpaper"
 )
 
-const SEASONS_DATA_FILENAME string = "~/.config/wallpaper/seasons.json"
+var wallpapers_folder string
 
 type Season struct {
-	Start string `json:"end_month"`
-	End   string `json:"end_day"`
+	Start string `json:"start"`
+	End   string `json:"end"`
 }
 
 func get_season(month int, day int) string {
-	file, err := os.Open(SEASONS_DATA_FILENAME)
+	file, err := os.Open(wallpapers_folder + "/seasons.json")
 	if err != nil {
-		return ""
+		fmt.Println("Could not load seasons.json")
+		os.Exit(1)
+		return "-1"
 	}
 	defer file.Close()
 
@@ -38,17 +40,17 @@ func get_season(month int, day int) string {
 		return ""
 	}
 
-	for season, dates := range season_data {
-		season_start, _ := time.Parse("01/02", dates.Start)
-		season_end, _ := time.Parse("01/02", dates.End)
+	current_time, _ := time.Parse("1/2,2006", strconv.Itoa(month)+"/"+strconv.Itoa(day)+"/")
 
-		current_time := time.Now()
+	for season, dates := range season_data {
+		season_start, _ := time.Parse("1/2/2006", dates.Start)
+		season_end, _ := time.Parse("1/2/2006", dates.End)
 
 		if !current_time.Before(season_start) && current_time.Before(season_end) {
 			return season
 		}
 	}
-	return ""
+	return "-1"
 }
 
 func get_day_night(time time.Time) string {
@@ -146,7 +148,7 @@ func main() {
 	current_time := time.Now()
 	tod := get_day_night(current_time)
 
-	wallpaper_path, err := wallpaper.Get()
+	wallpaper_path, _ := wallpaper.Get()
 
 	current_file, err := os.ReadFile(wallpaper_path + "name.txt")
 	if err != nil {
@@ -161,7 +163,7 @@ func main() {
 	current_tod := current_attributes[1]
 
 	temp_path := strings.Split(wallpaper_path, "/")
-	wallpapers_folder := strings.Join(temp_path[:len(temp_path)-2], "/")
+	wallpapers_folder = strings.Join(temp_path[:len(temp_path)-2], "/")
 
 	var changed bool = false
 

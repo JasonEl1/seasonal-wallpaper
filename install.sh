@@ -23,9 +23,8 @@ if [[ $"folder_count" -gt 7 ]]; then
         crontab -l | grep -v "wallpaper" | crontab -
         (crontab -l; echo "0 * * * * /usr/local/bin/wallpaper") | crontab -
         echo "Copied executable to wallpaper folder and added cron entry."
-        sudo mkdir ~/.config/wallpaper
-        sudo cp seasons.json ~/.config/wallpaper/seasons.json
-        echo "Copied seasons.json to system .config directory"
+        cp seasons.json $wallpaper_path/../seasons.json
+        echo "Copied seasons.json to wallpaper directory"
     else
         echo "Received $continue. Exiting installer."
     fi
