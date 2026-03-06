@@ -1,12 +1,14 @@
-// v0.0.3
+// v0.1.0
 
 package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -16,24 +18,37 @@ import (
 	"github.com/reujab/wallpaper"
 )
 
+const SEASONS_DATA_FILENAME string = "~/.config/wallpaper/seasons.json"
+
+type Season struct {
+	Start string `json:"end_month"`
+	End   string `json:"end_day"`
+}
+
 func get_season(month int, day int) string {
-	if month > 11 || month < 3 {
-		return "Winter"
-	} else if month > 2 && month < 6 {
-		return "Spring"
-	} else if month > 5 && month < 9 {
-		return "Summer"
-	} else if month == 9 {
-		if day < 22 {
-			return "Summer"
-		} else {
-			return "Autumn"
-		}
-	} else if month > 9 && month < 12 {
-		return "Autumn"
-	} else {
-		return "Winter"
+	file, err := os.Open(SEASONS_DATA_FILENAME)
+	if err != nil {
+		return ""
 	}
+	defer file.Close()
+
+	var season_data map[string]Season
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&season_data); err != nil {
+		return ""
+	}
+
+	for season, dates := range season_data {
+		season_start, _ := time.Parse("01/02", dates.Start)
+		season_end, _ := time.Parse("01/02", dates.End)
+
+		current_time := time.Now()
+
+		if !current_time.Before(season_start) && current_time.Before(season_end) {
+			return season
+		}
+	}
+	return ""
 }
 
 func get_day_night(time time.Time) string {
@@ -126,6 +141,8 @@ func get_day_night(time time.Time) string {
 }
 
 func main() {
+	OS_TYPE := runtime.GOOS
+
 	current_time := time.Now()
 	tod := get_day_night(current_time)
 
@@ -152,11 +169,15 @@ func main() {
 		entries, err := os.ReadDir(wallpapers_folder)
 		if err != nil {
 			fmt.Println("Couldn't load wallpaper folders")
+			os.Exit(1)
 		}
 
 		for _, entry := range entries {
 			if entry.IsDir() {
-				file, _ := os.ReadFile(wallpapers_folder + "/" + entry.Name() + "/name.txt")
+				file, err := os.ReadFile(wallpapers_folder + "/" + entry.Name() + "/name.txt")
+				if err != nil {
+					continue
+				}
 				folder := string(file)
 				attributes := strings.Split(folder, "-")
 				if attributes[0] == get_season(int(current_time.Month()), current_time.Day()) && attributes[1] == tod {
@@ -169,7 +190,7 @@ func main() {
 		}
 	}
 
-	if changed {
+	if changed && OS_TYPE == "darwin" {
 		cmd := exec.Command("killall", "WallpaperAgent")
 
 		err = cmd.Run()
