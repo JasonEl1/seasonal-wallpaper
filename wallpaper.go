@@ -1,4 +1,4 @@
-// v0.1.1
+// v0.1.2
 
 package main
 
@@ -40,17 +40,26 @@ func get_season(month int, day int) string {
 		return ""
 	}
 
-	current_time, _ := time.Parse("1/2,2006", strconv.Itoa(month)+"/"+strconv.Itoa(day)+"/")
+	current_time, _ := time.Parse("1/2", strconv.Itoa(month)+"/"+strconv.Itoa(day))
+
+	earliest_end, _ := time.Parse("1/2", "12/31")
+	var earliest_season string
 
 	for season, dates := range season_data {
-		season_start, _ := time.Parse("1/2/2006", dates.Start)
-		season_end, _ := time.Parse("1/2/2006", dates.End)
+		season_start, _ := time.Parse("1/2", dates.Start)
+		season_end, _ := time.Parse("1/2", dates.End)
 
-		if !current_time.Before(season_start) && current_time.Before(season_end) {
+		if season_end.Before(earliest_end) {
+			earliest_end = season_end
+			earliest_season = season
+		}
+
+		if current_time.Before(season_end) {
+			fmt.Println("Found matching season")
 			return season
 		}
 	}
-	return "-1"
+	return earliest_season
 }
 
 func get_day_night(time time.Time) string {
