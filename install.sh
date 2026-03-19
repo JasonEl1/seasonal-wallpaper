@@ -30,4 +30,5 @@ if [[ $"folder_count" -gt 7 ]]; then
     fi
 else
     echo "Destination directory structure is incorrect or wallpaper folder is set incorrectly. See README.md."
+    echo "used path: $enclosing_folder"
 fi

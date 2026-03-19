@@ -1,4 +1,4 @@
-// v0.1.2
+// v0.1.3
 
 package main
 
@@ -46,16 +46,15 @@ func get_season(month int, day int) string {
 	var earliest_season string
 
 	for season, dates := range season_data {
-		season_start, _ := time.Parse("1/2", dates.Start)
 		season_end, _ := time.Parse("1/2", dates.End)
+		season_start, _ := time.Parse("1/2", dates.Start)
 
 		if season_end.Before(earliest_end) {
 			earliest_end = season_end
 			earliest_season = season
 		}
 
-		if current_time.Before(season_end) {
-			fmt.Println("Found matching season")
+		if current_time.Before(season_end) && current_time.After(season_start) {
 			return season
 		}
 	}
@@ -159,10 +158,18 @@ func main() {
 
 	wallpaper_path, _ := wallpaper.Get()
 
-	current_file, err := os.ReadFile(wallpaper_path + "name.txt")
-	if err != nil {
-		fmt.Println("Active/name.txt not found")
-		os.Exit(1)
+	var err error
+	var current_file []byte
+
+	for err != nil || current_file == nil {
+
+		current_file, err = os.ReadFile(wallpaper_path + "name.txt")
+		if err != nil {
+			fmt.Println(wallpaper_path)
+			fmt.Println("Active/name.txt not found. Recovering...")
+			season := get_season(int(current_time.Month()), current_time.Day())
+			os.Rename(wallpaper_path+"/"+season+"-"+tod, wallpaper_path+"/Active")
+		}
 	}
 
 	current_folder := string(current_file)
@@ -176,7 +183,9 @@ func main() {
 
 	var changed bool = false
 
-	if current_season != get_season(int(current_time.Month()), current_time.Day()) || current_tod != tod { //if active wallpaper does not match current season or tod
+	if (current_season != get_season(int(current_time.Month()), current_time.Day())) || (current_tod != tod) { //if active wallpaper does not match current season or tod
+		fmt.Println("Found mismatch: current season is " + get_season(int(current_time.Month()), current_time.Day()) + " and current tod is " + tod + " but Active folder is " + current_season + "-" + current_tod)
+
 		entries, err := os.ReadDir(wallpapers_folder)
 		if err != nil {
 			fmt.Println("Couldn't load wallpaper folders")
@@ -192,13 +201,26 @@ func main() {
 				folder := string(file)
 				attributes := strings.Split(folder, "-")
 				if attributes[0] == get_season(int(current_time.Month()), current_time.Day()) && attributes[1] == tod {
-					_ = os.Rename(wallpapers_folder+"/Active", wallpapers_folder+"/"+current_season+"-"+current_tod)
-					_ = os.Rename(wallpapers_folder+"/"+entry.Name(), wallpapers_folder+"/Active")
+					err = os.Rename(wallpapers_folder+"/Active", wallpapers_folder+"/"+current_season+"-"+current_tod)
+					if err != nil {
+						fmt.Println("Could not rename Active folder")
+						os.Exit(1)
+					}
+					err = os.Rename(wallpapers_folder+"/"+entry.Name(), wallpapers_folder+"/Active")
+					if err != nil {
+						fmt.Println("Could not set Active folder")
+						os.Exit(1)
+					}
 					changed = true
+					fmt.Println("Changed active folder" + " from " + current_season + "-" + current_tod + " to " + entry.Name())
 					break
 				}
 			}
 		}
+	}
+
+	if !changed {
+		fmt.Println("did not change active folder")
 	}
 
 	if changed && OS_TYPE == "darwin" {
