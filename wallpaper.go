@@ -1,4 +1,4 @@
-// v0.1.3
+// v0.1.4
 
 package main
 
@@ -54,7 +54,7 @@ func get_season(month int, day int) string {
 			earliest_season = season
 		}
 
-		if current_time.Before(season_end) && current_time.After(season_start) {
+		if (current_time.Before(season_end) || current_time.Equal(season_end)) && (current_time.After(season_start) || current_time.Equal(season_start)) {
 			return season
 		}
 	}
